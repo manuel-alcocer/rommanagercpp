@@ -5,6 +5,7 @@
 #include <string>
 #include <map>
 #include <vector>
+#include <sstream>
 
 namespace Rommcpp {
     class Menu;
@@ -27,6 +28,8 @@ private:
     std::vector<std::map<std::string, std::string>> options;
     std::string title;
     std::string subtitle;
+    int lastSuccessfulChoice;
+    int lastChoice;
 };
 
 class Rommcpp::RomPool : public Rommcpp::Menu {

@@ -59,9 +59,15 @@ int Rommcpp::Menu::getOptionCount(){
     return options.size();
 }
 
-int askUserForOption(){
-    int option;
-    std::cout << "Enter option: ";
-    std::cin >> option;
-    return option;
+int Rommcpp::Menu::askUserForOption(){
+    std::string input;
+    std::cout << "Enter your choice: ";
+    std::cin >> input;
+    std::stringstream ss(input);
+    ss >> lastChoice;
+    if (ss.fail()){
+        return -1;
+    }
+    lastSuccessfulChoice = lastChoice;
+    return lastChoice;
 }
