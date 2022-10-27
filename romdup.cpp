@@ -1,11 +1,67 @@
 #include "romdup.h"
 
-Rd::RomDup::RomDup(const QString& filename){
-    gameXmlFile.setFileName(filename);
-    QFileInfo fileInfo{filename};
+Rd::RomDup::RomDup(){
+    initRomdup();
+}
+
+Rd::RomDup::RomDup(const QString& dirName){
+    initRomdup();
+    /* gameXmlFile.setFileName(filename);
+     QFileInfo fileInfo{filename};
     romDir.setPath(fileInfo.absolutePath());
     newRomsetDoc.appendChild(newRomsetDoc.createProcessingInstruction("xml", "version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\""));
     newGameListNode = newRomsetDoc.appendChild(QDomNode(newRomsetDoc.createElement("gameList")));
+    */
+}
+
+void Rd::RomDup::initRomdup(){
+    readSettings();
+    setRomsetDir(QFileInfo("/run/media/manuel/DISK05/manuel/roms-351elec/snes"));
+}
+
+bool Rd::RomDup::setRomsetDir(const QFileInfo& romset){
+    if (romsetList.contains(romset)){
+        qDebug() << "Choosen: " << romset.canonicalFilePath();
+        return true;
+    }
+    qDebug() << "Not choosen: " << romset.canonicalFilePath();
+    return false;
+}
+
+void Rd::RomDup::settingsReadPoolDir(){
+    bool setup;
+    QString newDir;
+
+    if (settings.childKeys().contains("pooldir"))
+        newDir = settings.value("pooldir").toString();
+    else
+        newDir = QDir::currentPath();
+
+    setup = setPoolDir(newDir);
+    if (setup)
+        settings.setValue("pooldir", newDir);
+}
+
+void Rd::RomDup::readSettings(){
+    settingsReadPoolDir();
+}
+
+bool Rd::RomDup::setPoolDir(const QString& dirName){
+    bool matched {false};
+    poolDir = QDir{dirName};
+    QFileInfoList dirList {poolDir.entryInfoList(QDir::NoDotAndDotDot|QDir::Dirs)};
+    for (int i=0; i < dirList.count(); i++){
+        QFileInfo romset(dirList.at(i).canonicalFilePath()+"/"+"gamelist.xml");
+        if (romset.exists()){
+            matched = true;
+            qDebug() << "Appending: " << romset.canonicalPath();
+            romsetList.append(romset);
+        }
+    }
+
+    if (matched)
+        settings.setValue("pooldir", poolDir.canonicalPath());
+    return matched;
 }
 
 bool Rd::RomDup::filterByNameStartsWith(const QString& name){

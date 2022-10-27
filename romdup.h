@@ -13,6 +13,7 @@
 #include <QStringList>
 #include <QTemporaryFile>
 #include <QDir>
+#include <QSettings>
 
 namespace Rd {
     class Game {
@@ -54,15 +55,24 @@ namespace Rd {
 
     class RomDup : public Games {
     public:
+        RomDup();
         RomDup(const QString&);
         void parseXml();
         bool parseNode(const QDomNode&);
         bool hasToRemoveGame(const Rd::Game&);
         const QString dumpXml() const;
         int totalGames() const;
+        bool setPoolDir(const QString&);
+        bool setRomsetDir(const QFileInfo&);
+        void readSettings();
     private:
+        void initRomdup();
         bool loadGamelist();
         bool filterByNameStartsWith(const QString&);
+        void settingsReadPoolDir();
+        QSettings settings;
+        QDir poolDir;
+        QFileInfoList romsetList;
         QString createTmpFile() const;
         QFile gameXmlFile;
         QDir romDir;
